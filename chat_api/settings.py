@@ -21,13 +21,21 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-ijtn^l)ka8@34r#7ln(8!vsa(tpo8v(+fbnmqrj732c9l=e5tg'
+# SECRET_KEY = 'django-insecure-ijtn^l)ka8@34r#7ln(8!vsa(tpo8v(+fbnmqrj732c9l=e5tg'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# # SECURITY WARNING: don't run with debug turned on in production!
+# DEBUG = True
 
-ALLOWED_HOSTS = []
+# ALLOWED_HOSTS = []
 
+# Security
+SECRET_KEY = config('SECRET_KEY', default='dev-secret-key-change-in-production')
+DEBUG = config('DEBUG', default=True, cast=bool)
+ALLOWED_HOSTS = config(
+    'ALLOWED_HOSTS',
+    default='localhost,127.0.0.1',
+    cast=lambda v: [s.strip() for s in v.split(',')]
+)
 
 # Application definition
 
@@ -46,14 +54,24 @@ INSTALLED_APPS = [
 
 ASGI_APPLICATION = 'chat_api.asgi.application'
 
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            'hosts': [(config('REDIS_HOST', default='127.0.0.1'), 6379)],
+# Redis Channel Layer (falls back to InMemory if no REDIS_URL)
+REDIS_URL = config('REDIS_URL', default=None)
+
+if REDIS_URL:
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': 'channels_redis.core.RedisChannelLayer',
+            'CONFIG': {
+                'hosts': [REDIS_URL],
+            },
         },
-    },
-}
+    }
+else:
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': 'channels.layers.InMemoryChannelLayer'
+        }
+    }
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -130,4 +148,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = 'static/'
+# Production static files
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
