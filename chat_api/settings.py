@@ -12,9 +12,13 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 from pathlib import Path
 from decouple import config
+import os
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+PORT = os.environ.get('PORT', 8000)
 
 
 # Quick-start development settings - unsuitable for production
@@ -36,6 +40,9 @@ ALLOWED_HOSTS = config(
     default='localhost,127.0.0.1',
     cast=lambda v: [s.strip() for s in v.split(',')]
 )
+
+if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Application definition
 

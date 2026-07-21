@@ -20,5 +20,6 @@ COPY . /app/
 
 EXPOSE 8000
 
+# For local Docker: fixed port 8000
+# Render ignores this CMD and uses its own startCommand
 CMD ["daphne", "-b", "0.0.0.0", "-p", "8000", "chat_api.asgi:application"]
-

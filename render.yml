@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: chat-api
+    env: python
+    region: singapore
+    buildCommand: "./build.sh"
+    startCommand: "daphne -b 0.0.0.0 -p $PORT chat_api.asgi:application"
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: chat_api.settings
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: false
+      - key: PYTHON_VERSION
+        value: 3.12.0
